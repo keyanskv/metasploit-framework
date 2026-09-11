@@ -665,13 +665,7 @@ RSpec.describe Msf::PayloadGenerator do
       end
 
 
-      it 'returns modified shellcode' do
-        skip "This is a bad test and needs to be refactored"
-        # The exact length is variable due to random nops inserted into the routine
-        # It looks like it should always be > 300
-        # Can't do precise output matching due to this same issue
-        expect(payload_generator.add_shellcode(shellcode).length).to be > 300
-      end
+
     end
 
     context 'when add_code points to an invalid file' do

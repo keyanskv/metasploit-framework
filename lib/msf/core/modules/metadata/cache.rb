@@ -119,7 +119,7 @@ class Cache
         next
       end
 
-      if module_metadata.type == 'payload' && !module_metadata.instance_variable_defined?(:@payload_cached_size)
+      if module_metadata.type == 'payload' && !module_metadata.instance_variable_defined?(:@payload_cached_size_dynamic)
         next
       end
 

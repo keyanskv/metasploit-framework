@@ -116,6 +116,33 @@ RSpec.describe Msf::Modules::Metadata::Cache do
     end
   end
 
+  describe '#get_unchanged_module_references' do
+    before do
+      allow(::File).to receive(:exist?).and_return(true)
+      allow(::File).to receive(:mtime).and_return(Time.parse('2024-01-01 00:00:00 +0000'))
+    end
+
+    it 'does not reuse payload metadata without the size schema marker' do
+      legacy_payload = make_metadata(type: 'payload', ref_name: 'test/legacy')
+      populate_cache(cache, legacy_payload)
+
+      unchanged = cache.send(:get_unchanged_module_references)
+
+      expect(unchanged['payload']).not_to include('test/legacy')
+    end
+
+    it 'reuses payload metadata with the size schema marker' do
+      payload = make_metadata(type: 'payload', ref_name: 'test/current')
+      payload.instance_variable_set(:@payload_cached_size, 1024)
+      payload.instance_variable_set(:@payload_cached_size_dynamic, false)
+      populate_cache(cache, payload)
+
+      unchanged = cache.send(:get_unchanged_module_references)
+
+      expect(unchanged['payload']).to include('test/current')
+    end
+  end
+
   describe '#refresh_metadata_instance_internal' do
     it 'adds a new module to the type index' do
       mod = make_module_instance(type: 'exploit', refname: 'test/new', path: '/modules/new.rb')

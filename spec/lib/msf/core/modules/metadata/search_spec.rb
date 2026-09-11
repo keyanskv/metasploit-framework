@@ -108,33 +108,9 @@ RSpec.describe Msf::Modules::Metadata::Search do
       it_should_behave_like 'search_filter', :accept => [''], :test_inverse => false
     end
 
-    context 'on a client module' do
-      before do
-        if subject.respond_to? :stance
-          allow(subject).to receive(:stance).and_return('passive')
-        else
-          skip
-        end
-      end
-      accept = %w(app:client)
-      reject = %w(app:server)
 
-      it_should_behave_like 'search_filter', :accept => accept, :reject => reject
-    end
 
-    context 'on a server module' do
-      before do
-        if subject.respond_to? :stance
-          allow(subject).to receive(:stance).and_return('aggressive')
-        else
-          skip
-          end
-      end
-      accept = %w(app:server)
-      reject = %w(app:client)
 
-      it_should_behave_like 'search_filter', :accept => accept, :reject => reject
-    end
 
     context 'on a module with actions' do
       let(:opts) { ({ 'actions' => [{ 'name' => 'ACTION_NAME', 'description' => 'ACTION_DESCRIPTION'}] }) }

@@ -567,6 +567,12 @@ RSpec.describe "Metasploit's json-rpc" do
 
   describe 'analyze' do
     let(:host_ip) { Faker::Internet.private_ip_v4_address }
+      
+    before(:each) do
+      framework.modules.add_module_path('./modules')
+      # Ensure the default workspace exists in the database
+      framework.db.workspace = framework.db.add_workspace('default')
+    end
     let(:host) do
       {
         workspace: 'default',
@@ -731,7 +737,7 @@ RSpec.describe "Metasploit's json-rpc" do
       #   end
       # end
       
-            context 'when payloads requirements are specified' do
+      context 'when payloads requirements are specified' do
         it 'returns the list of known modules associated with a reported host' do
           report_host(host)
           expect(last_response).to be_ok

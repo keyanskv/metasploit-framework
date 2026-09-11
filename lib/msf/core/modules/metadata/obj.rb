@@ -131,6 +131,8 @@ class Obj
   attr_reader :stager_refname
   # @return [Integer, nil] Cached size of the payload if applicable
   attr_reader :payload_cached_size
+  # @return [Boolean, nil] Whether the payload size is dynamic, or nil for legacy metadata
+  attr_reader :payload_cached_size_dynamic
 
   def initialize(module_instance, obj_hash = nil)
     unless obj_hash.nil?
@@ -209,15 +211,8 @@ class Obj
     end
     if module_instance.respond_to?(:cached_size)
       @payload_cached_size = module_instance.cached_size
-      if @payload_cached_size.nil? && module_instance.dynamic_size?
-        begin
-          require 'msf/util/payload_cached_size'
-          opts = Msf::Util::PayloadCachedSize.module_options(module_instance)
-          @payload_cached_size = module_instance.replicant.generate_simple(opts).bytesize
-        rescue => e
-          elog("Failed to generate a default size for dynamic payload #{module_instance.refname}: #{e.class} #{e.message}")
-        end
-      end
+      @payload_cached_size_dynamic = module_instance.dynamic_size?
+      @payload_cached_size = nil if @payload_cached_size_dynamic
     end
 
     # Due to potentially non-standard ASCII we force UTF-8 to ensure no problem with JSON serialization
@@ -267,6 +262,7 @@ class Obj
         'stage_refname'      => @stage_refname,
         'stager_refname'     => @stager_refname,
         'payload_cached_size'=> @payload_cached_size,
+        'payload_cached_size_dynamic' => @payload_cached_size_dynamic,
       }.compact
       data.merge!(payload_data)
     end
@@ -342,6 +338,9 @@ class Obj
     @stager_refname      = obj_hash['stager_refname']
     if obj_hash.key?('payload_cached_size')
       @payload_cached_size = obj_hash['payload_cached_size']
+    end
+    if obj_hash.key?('payload_cached_size_dynamic')
+      @payload_cached_size_dynamic = obj_hash['payload_cached_size_dynamic']
     end
   end
 

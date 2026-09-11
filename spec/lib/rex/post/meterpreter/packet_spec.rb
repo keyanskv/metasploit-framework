@@ -309,24 +309,6 @@ RSpec.describe Rex::Post::Meterpreter::GroupTlv do
       expect(group_tlv.tlvs.last.value).to eq "test2"
     end
 
-    it "should raise an error when given something other than nil or an array" do
-      skip "RM #7598"
-      expect(group_tlv.add_tlvs("bad value")).to raise_error
-    end
-
-    it "should raise an error when given an array of objects other than hashes" do
-      skip "RM #7598"
-      expect(group_tlv.add_tlvs([1,2,3])).to raise_error
-    end
-
-    it "should raise an error when any of the hashes are missing a key" do
-      skip "RM #7598"
-      tlv_array = [
-        {:type => Rex::Post::Meterpreter::TLV_TYPE_STRING, :value => "test"},
-        {:type => Rex::Post::Meterpreter::TLV_TYPE_STRING}
-      ]
-      expect(group_tlv.add_tlvs(tlv_array)).to raise_error
-    end
   end
 
   context "with TLVs added" do

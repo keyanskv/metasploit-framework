@@ -42,11 +42,13 @@ RSpec.describe Msf::Modules::Metadata::Obj do
     it 'correctly serializes and deserializes payload_cached_size' do
       obj = described_class.new(module_instance)
       expect(obj.payload_cached_size).to eq(1024)
+      expect(obj.payload_cached_size_dynamic).to be false
 
       json = obj.to_json
       hash = JSON.parse(json)
       
       expect(hash['payload_cached_size']).to eq(1024)
+      expect(hash['payload_cached_size_dynamic']).to be false
 
       restored_obj = described_class.from_hash(hash)
       expect(restored_obj.payload_cached_size).to eq(1024)
@@ -95,17 +97,20 @@ RSpec.describe Msf::Modules::Metadata::Obj do
         allow(module_instance_dynamic).to receive(:replicant).and_return(replicant)
       end
 
-      it 'generates a size and serializes/deserializes it' do
+      it 'marks the dynamic size and serializes/deserializes it' do
         obj = described_class.new(module_instance_dynamic)
-        expect(obj.payload_cached_size).to eq(250000)
+        expect(obj.payload_cached_size).to be_nil
+        expect(obj.payload_cached_size_dynamic).to be true
 
         json = obj.to_json
         hash = JSON.parse(json)
         
-        expect(hash['payload_cached_size']).to eq(250000)
+        expect(hash['payload_cached_size']).to be_nil
+        expect(hash['payload_cached_size_dynamic']).to be true
 
         restored_obj = described_class.from_hash(hash)
-        expect(restored_obj.payload_cached_size).to eq(250000)
+        expect(restored_obj.payload_cached_size).to be_nil
+        expect(restored_obj.payload_cached_size_dynamic).to be true
       end
     end
   end

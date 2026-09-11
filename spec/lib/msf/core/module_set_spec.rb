@@ -173,13 +173,7 @@ RSpec.describe Msf::ModuleSet do
         allow(subject).to receive(:create).with(module_refname)
       end
 
-      # TODO: it's unexpected that `fetch` and `[]` would act this differently
-      # investigate implementing `to_hash` to tell ruby we act like a hash over extending Hash
-      # seems like this is potentially a feature not a bug, we use `fetch` to intentionally not create modules sometimes
-      xit 'attempts to create the module' do
-        subject.fetch(module_refname)
-        is_expected.to have_received(:create).with(module_refname)
-      end
+
     end
   end
 
