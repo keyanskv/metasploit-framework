@@ -165,7 +165,6 @@ RSpec.describe 'cmd/windows/http/x64' do
         expect(cmd).to include('start /B')
       end
     end
-
   end
 
   describe '#fetch_protocol' do
@@ -177,6 +176,38 @@ RSpec.describe 'cmd/windows/http/x64' do
   describe '#windows?' do
     it 'returns true for this Windows platform module' do
       expect(subject.windows?).to be(true)
+    end
+  end
+
+  describe 'custom executable payloads' do
+    let(:custom_exe) do
+      load_and_create_module(
+        module_type: 'payload',
+        reference_name: 'cmd/windows/http/x64/custom_exe',
+        ancestor_reference_names: [
+          'adapters/cmd/windows/http/x64',
+          'singles/windows/x64/custom_exe'
+        ]
+      )
+    end
+
+    let(:custom_exe_path) do
+      path = File.join(Dir.tmpdir, 'custom_fetch_payload.exe')
+      File.binwrite(path, "MZ\x90\x00\x03\x00\xff\xfe".b)
+      path
+    end
+
+    after do
+      File.delete(custom_exe_path) if File.exist?(custom_exe_path)
+    end
+
+    it 'serves the custom executable bytes without applying shellcode prepends' do
+      custom_exe.datastore.merge!(datastore_values)
+      custom_exe.datastore['EXE_PATH'] = custom_exe_path
+
+      custom_exe.generate_complete
+
+      expect(custom_exe.instance_variable_get(:@srv_resources).first[:data]).to eq(File.binread(custom_exe_path))
     end
   end
 end

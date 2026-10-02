@@ -130,7 +130,10 @@ module Msf::Payload::Adapter::Fetch
         add_srv_entry(srvuri, 'x', opts)
       else
         opts[:dynamic_arch] = false
-        opts[:code] = apply_prepends(super(opts))
+        opts[:code] = super(opts)
+        # Custom executables are already complete binary artifacts. Prepend
+        # stubs are intended for shellcode and would corrupt the PE file.
+        opts[:code] = apply_prepends(opts[:code]) if datastore['EXE::Custom'].to_s.empty?
         add_srv_entry(srvuri, generate_payload_exe(opts), opts)
       end
 
